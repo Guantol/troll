@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Arial Black', sans-serif;
+  }
+
+  #trap {
+    position: fixed;
+    inset: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  #overlay.active {
+    opacity: 1;
+  }
+
+  /* Fondo con flash de colores */
+  #overlay.active {
+    animation: bgFlash 0.15s infinite;
+  }
+
+  @keyframes bgFlash {
+    0%   { background: #ff0000; }
+    14%  { background: #ff7700; }
+    28%  { background: #ffff00; }
+    42%  { background: #00ff00; }
+    57%  { background: #0000ff; }
+    71%  { background: #8800ff; }
+    85%  { background: #ff00ff; }
+    100% { background: #ff0000; }
+  }
+
+  #text {
+    font-size: clamp(3rem, 12vw, 8rem);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.1;
+    color: #fff;
+    text-shadow:
+      0 0 20px #fff,
+      0 0 40px #fff,
+      4px 4px 0 #000,
+      -4px -4px 0 #000,
+      4px -4px 0 #000,
+      -4px 4px 0 #000;
+    animation: textBounce 0.2s infinite alternate, textSpin 1s infinite;
+    letter-spacing: -2px;
+  }
+
+  @keyframes textBounce {
+    from { transform: scale(1) rotate(-3deg); }
+    to   { transform: scale(1.15) rotate(3deg); }
+  }
+
+  @keyframes textSpin {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  #emoji-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
+  }
+
+  .emoji {
+    position: absolute;
+    font-size: 3rem;
+    animation: fall linear infinite;
+    top: -60px;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- El "botón" invisible que cubre toda la pantalla -->
+<div id="trap" onclick="activateTroll()"></div>
+
+<!-- Overlay de troll -->
+<div id="overlay">
+  <div id="text">TROLEADO😂😂😂</div>
+</div>
+
+<!-- Lluvia de emojis -->
+<div id="emoji-rain"></div>
+
+<!-- 
+  =====================================================
+  👇 REEMPLAZÁ "troll.mp3" CON TU ARCHIVO DE AUDIO 👇
+  Poné el archivo de audio EN LA MISMA CARPETA que este HTML
+  y cambiá "troll.mp3" por el nombre de tu archivo.
+  Formatos soportados: .mp3  .ogg  .wav
+  =====================================================
+-->
+<audio id="troll-audio" loop>
+  <source src="troll.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  let activated = false;
+
+  function activateTroll() {
+    if (activated) return;
+    activated = true;
+
+    // Quitar el botón trampa
+    document.getElementById('trap').style.pointerEvents = 'none';
+
+    // Mostrar overlay
+    const overlay = document.getElementById('overlay');
+    overlay.classList.add('active');
+
+    // Reproducir audio
+    const audio = document.getElementById('troll-audio');
+    audio.volume = 1.0;
+    audio.play().catch(() => {
+      // fallback silencioso si el navegador bloquea el audio
+    });
+
+    // Lluvia de emojis
+    startEmojiRain();
+  }
+
+  function startEmojiRain() {
+    const container = document.getElementById('emoji-rain');
+    const emojis = ['😂', '💀', '🤡', '😭', '🎉', '🔥', '👀', '😈'];
+
+    function spawnEmoji() {
+      const el = document.createElement('div');
+      el.className = 'emoji';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      const duration = 1.5 + Math.random() * 2;
+      el.style.animationDuration = duration + 's';
+      el.style.animationDelay = '0s';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), duration * 1000 + 100);
+    }
+
+    setInterval(spawnEmoji, 80);
+  }
+</script>
+</body>
+</html>
